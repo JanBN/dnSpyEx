@@ -1,0 +1,9 @@
+﻿<Project>
+	<UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\compiled\PatchSubSystem.dll" TaskName="PatchSubSystem.PatchSubSystem" />
+	<Target Name="PatchSubSystemToWindowCui" AfterTargets="Build" Condition=" '$(TargetPath)' != ''">
+		<PatchSubSystem TargetSubSystem="WindowsCui" OutputFile="$(TargetPath)" />
+	</Target>
+	<Target Name="PatchSubSystemToWindowCuiPublish" AfterTargets="Publish" Condition=" '$(TargetPath)' != ''">
+		<PatchSubSystem TargetSubSystem="WindowsCui" OutputFile="$(TargetPath)" />
+	</Target>
+</Project>

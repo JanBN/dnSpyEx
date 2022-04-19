@@ -1,0 +1,75 @@
+name: GitHub CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  release:
+    types: released
+
+env:
+  CI_REQ_DOTNET_SDK_VER: 6.0.100
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{env.CI_REQ_DOTNET_SDK_VER}}
+          
+      - uses: microsoft/setup-msbuild@v1.0.2
+
+      # Build each tfm separately since building all requires too much disk space
+      - name: Build dnSpy (.NET Framework)
+        shell: pwsh
+        run: |
+          .\build.ps1 netframework
+          New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
+          Compress-Archive -Path dnSpy\dnSpy\bin\Release\net48\* -DestinationPath C:\builtfiles\dnSpy-netframework.zip
+          .\clean-all.cmd
+          
+      - uses: actions/upload-artifact@v2
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        with:
+          name: dnSpy-netframework
+          path: C:\builtfiles\dnSpy-netframework.zip
+          if-no-files-found: error
+
+      - name: Build dnSpy (.NET x86)
+        shell: pwsh
+        run: |
+          .\build.ps1 net-x86
+          New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
+          Compress-Archive -Path dnSpy\dnSpy\bin\Release\net6.0-windows\win-x86\publish\* -DestinationPath C:\builtfiles\dnSpy-net-win32.zip
+          .\clean-all.cmd
+
+      - uses: actions/upload-artifact@v2
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        with:
+          name: dnSpy-net-win32
+          path: C:\builtfiles\dnSpy-net-win32.zip
+          if-no-files-found: error
+          
+      - name: Build dnSpy (.NET x64)
+        shell: pwsh
+        run: |
+          .\build.ps1 net-x64
+          New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
+          Compress-Archive -Path dnSpy\dnSpy\bin\Release\net6.0-windows\win-x64\publish\* -DestinationPath C:\builtfiles\dnSpy-net-win64.zip
+          .\clean-all.cmd
+
+      - uses: actions/upload-artifact@v2
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        with:
+          name: dnSpy-net-win64
+          path: C:\builtfiles\dnSpy-net-win64.zip
+          if-no-files-found: error
