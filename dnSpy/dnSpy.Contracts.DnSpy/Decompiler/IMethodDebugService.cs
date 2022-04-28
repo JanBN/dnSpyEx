@@ -83,6 +83,7 @@ namespace dnSpy.Contracts.Decompiler {
 	/// <summary>
 	/// Find options
 	/// </summary>
+	[Flags]
 	public enum FindByTextPositionOptions {
 		/// <summary>
 		/// No bit is set

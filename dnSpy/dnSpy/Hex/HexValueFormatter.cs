@@ -25,6 +25,7 @@ using System.Text;
 using dnSpy.Contracts.Hex;
 
 namespace dnSpy.Hex {
+	[Flags]
 	enum HexValueFormatterFlags {
 		None					= 0,
 		LowerCaseHex			= 0x00000001,

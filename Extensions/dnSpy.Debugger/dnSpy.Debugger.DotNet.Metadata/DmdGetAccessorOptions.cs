@@ -17,10 +17,13 @@
     along with dnSpy.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
+
 namespace dnSpy.Debugger.DotNet.Metadata {
 	/// <summary>
 	/// Get property/event accessor options
 	/// </summary>
+	[Flags]
 	public enum DmdGetAccessorOptions {
 		/// <summary>
 		/// No bit is set

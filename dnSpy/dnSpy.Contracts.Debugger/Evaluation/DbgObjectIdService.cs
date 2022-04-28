@@ -109,6 +109,7 @@ namespace dnSpy.Contracts.Debugger.Evaluation {
 	/// <summary>
 	/// Object ID options
 	/// </summary>
+	[Flags]
 	public enum CreateObjectIdOptions {
 		/// <summary>
 		/// No bit is set

@@ -664,6 +664,7 @@ namespace dnSpy.Debugger.DotNet.Metadata {
 	/// <summary>
 	/// Create-assembly-options
 	/// </summary>
+	[Flags]
 	public enum DmdCreateAssemblyOptions {
 		/// <summary>
 		/// No bit is set

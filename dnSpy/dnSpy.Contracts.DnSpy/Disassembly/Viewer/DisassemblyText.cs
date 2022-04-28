@@ -62,6 +62,7 @@ namespace dnSpy.Contracts.Disassembly.Viewer {
 	/// <summary>
 	/// <see cref="DisassemblyText"/> reference flags
 	/// </summary>
+	[Flags]
 	public enum DisassemblyReferenceFlags {
 		/// <summary>
 		/// No bit is set
