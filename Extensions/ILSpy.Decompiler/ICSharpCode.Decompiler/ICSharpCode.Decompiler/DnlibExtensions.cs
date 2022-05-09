@@ -99,21 +99,53 @@ namespace ICSharpCode.Decompiler {
 			return ary;
 		}
 
-		#region GetPushDelta / GetPopDelta
-		public static int GetPushDelta(this Instruction instruction, MethodDef methodDef)
-		{
-			int pushes, pops;
-			instruction.CalculateStackUsage(methodDef.HasReturnType, out pushes, out pops);
-			return pushes;
+		public static bool SupportsPrefix(this Instruction instr, Code prefix) {
+			switch (instr.OpCode.Code) {
+			case Code.Cpblk:
+			case Code.Initblk:
+			case Code.Ldobj:
+			case Code.Ldind_I:
+			case Code.Ldind_I1:
+			case Code.Ldind_I2:
+			case Code.Ldind_I4:
+			case Code.Ldind_I8:
+			case Code.Ldind_R4:
+			case Code.Ldind_R8:
+			case Code.Ldind_Ref:
+			case Code.Ldind_U1:
+			case Code.Ldind_U2:
+			case Code.Ldind_U4:
+			case Code.Stobj:
+			case Code.Stind_I:
+			case Code.Stind_I1:
+			case Code.Stind_I2:
+			case Code.Stind_I4:
+			case Code.Stind_I8:
+			case Code.Stind_R4:
+			case Code.Stind_R8:
+			case Code.Stind_Ref:
+			case Code.Ldfld:
+			case Code.Stfld:
+				return prefix == Code.Volatile || prefix == Code.Unaligned;
+			case Code.Ldsfld:
+			case Code.Stsfld:
+				return prefix == Code.Volatile;
+			case Code.Callvirt:
+				return prefix == Code.Constrained || prefix == Code.Tailcall;
+			case Code.Call:
+				if (prefix == Code.Readonly) {
+					return instr.Operand is MemberRef memberRef && memberRef.Name == "Address" &&
+						   memberRef.DeclaringType is TypeSpec typeSpec && typeSpec.TypeSig.RemoveModifiers() is ArraySigBase;
+				}
+				return prefix == Code.Tailcall;
+			case Code.Calli:
+				return prefix == Code.Tailcall;
+			case Code.Ldelema:
+				return prefix == Code.Readonly;
+			default:
+				return false;
+			}
 		}
-
-		public static int GetPopDelta(this Instruction instruction, MethodDef methodDef)
-		{
-			int pushes, pops;
-			instruction.CalculateStackUsage(methodDef.HasReturnType, out pushes, out pops);
-			return pops;
-		}
-		#endregion
 
 		/// <summary>
 		/// checks if the given TypeReference is one of the following types:

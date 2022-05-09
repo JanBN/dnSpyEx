@@ -301,18 +301,25 @@ namespace ICSharpCode.Decompiler.ILAst {
 					code = codeBkp;
 					operand = inst.Operand;
 				}
+				inst.CalculateStackUsage(methodDef.HasReturnType, out int pushCount, out int popCount);
 				ByteCode byteCode = new ByteCode() {
 					Offset      = inst.Offset,
 					EndOffset   = next?.Offset ?? (uint)methodDef.Body.GetCodeSize(),
 					Code        = code,
 					Operand     = operand,
-					PopCount    = inst.GetPopDelta(methodDef),
-					PushCount   = inst.GetPushDelta(methodDef)
+					PopCount    = popCount,
+					PushCount   = pushCount
 				};
 				if (prefixes != null) {
-					instrToByteCode[prefixes[0]] = byteCode;
-					byteCode.Offset = prefixes[0].Offset;
-					byteCode.Prefixes = prefixes.ToArray();
+					var firstPrefix = prefixes[0];
+					if (inst.SupportsPrefix(firstPrefix.OpCode.Code)) {
+						instrToByteCode[firstPrefix] = byteCode;
+						byteCode.Offset = firstPrefix.Offset;
+						byteCode.Prefixes = prefixes.ToArray();
+					}
+					else {
+						instrToByteCode[inst] = byteCode;
+					}
 					prefixes = null;
 					StackAnalysis_cachedPrefixes.Clear();
 				} else {
